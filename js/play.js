@@ -408,10 +408,6 @@ async function onchoosePiece(id, piece, player) {
   if (player != actualPlayer) return;
   if (isDiceEmpty(turns)) return;
   var position = players[actualPlayer - 1][piece - 1];
-  //Incrementar posicao
-  if (turns[0] == turns[1]) {
-    playAgain = true;
-  }
 
   if (position >= 600) {
     var turn = getDice();
@@ -424,15 +420,26 @@ async function onchoosePiece(id, piece, player) {
     }
   } else {
     var turn = getDice();
-    //incrementPosition(id, piece, turn);
     await movePiece(id, piece, turn);
   }
 
   if (isDiceEmpty(turns)) {
-    incrementActualPlayer(1000);
+    if (!playAgain) {
+      incrementActualPlayer(1000);
+    }
+    resetPlayAgain();
   }
 }
 
+function EqualDiceNumber(firstRandomDieceNumber, secondRandomDieceNumber) {
+  if (firstRandomDieceNumber == secondRandomDieceNumber) {
+    playAgain = true;
+  }
+}
+
+function resetPlayAgain() {
+  playAgain = false;
+}
 function randomRollDice() {
   if (!isDiceEmpty(turns)) return;
   var isLive = players_info[actualPlayer].existPieceLive;
@@ -443,12 +450,17 @@ function randomRollDice() {
     secondRandomDieceNumber = firstRandomDieceNumber;
     firstRandomDieceNumber = aux;
   }
+  //In case that we have two dice with the same number
+  EqualDiceNumber(firstRandomDieceNumber, secondRandomDieceNumber);
   if (!isLive) {
     if (secondRandomDieceNumber == 6 || firstRandomDieceNumber == 6) {
       players_info[actualPlayer].existPieceLive = true;
       turns.push(firstRandomDieceNumber, secondRandomDieceNumber);
     } else {
-      incrementActualPlayer(4110);
+      if (!playAgain) {
+        incrementActualPlayer(4110);
+      }
+      resetPlayAgain();
       turns = [];
     }
   } else {
