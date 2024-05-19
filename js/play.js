@@ -80,6 +80,15 @@ const PLAYER_PATHS = {
     77: 81,
     78: 82,
     79: 83,
+    80: 100,
+    81: 101,
+    82: 102,
+    83: 103,
+    84: 104,
+    85: 105,
+    86: 106,
+    87: 107,
+    88: 108,
     600: 600,
     601: 601,
     602: 602,
@@ -166,6 +175,15 @@ const PLAYER_PATHS = {
     77: 18,
     78: 19,
     79: 20,
+    80: 200,
+    81: 201,
+    82: 202,
+    83: 203,
+    84: 204,
+    85: 205,
+    86: 206,
+    87: 207,
+    88: 208,
     700: 700,
     701: 701,
     702: 702,
@@ -252,6 +270,15 @@ const PLAYER_PATHS = {
     77: 39,
     78: 40,
     79: 41,
+    80: 300,
+    81: 301,
+    82: 302,
+    83: 303,
+    84: 304,
+    85: 305,
+    86: 306,
+    87: 307,
+    88: 308,
     800: 800,
     801: 801,
     802: 802,
@@ -338,6 +365,15 @@ const PLAYER_PATHS = {
     77: 60,
     78: 61,
     79: 62,
+    80: 400,
+    81: 401,
+    82: 402,
+    83: 403,
+    84: 404,
+    85: 405,
+    86: 406,
+    87: 407,
+    88: 408,
     900: 900,
     901: 901,
     902: 902,
@@ -345,6 +381,12 @@ const PLAYER_PATHS = {
     904: 904,
   },
 };
+const BASE = [
+  [600, 601, 602, 603],
+  [700, 701, 702, 703],
+  [800, 801, 802, 803],
+  [900, 901, 902, 903],
+];
 
 var players = [
   [600, 601, 602, 603],
@@ -355,20 +397,24 @@ var players = [
 
 var players_info = {
   1: {
-    livePiece: 0,
+    livePieceLength: 0,
     existPieceLive: false,
+    livePieces: new Array(),
   },
   2: {
-    livePiece: 0,
+    livePieceLength: 0,
     existPieceLive: false,
+    livePieces: new Array(),
   },
   3: {
-    livePiece: 0,
+    livePieceLength: 0,
     existPieceLive: false,
+    livePieces: new Array(),
   },
   4: {
-    livePiece: 0,
+    livePieceLength: 0,
     existPieceLive: false,
+    livePieces: new Array(),
   },
 };
 
@@ -380,8 +426,8 @@ var turnIndex = 0;
 var playAgain = false;
 var selectedPriorityDice = 1;
 
-function getPlace(position) {
-  return PLAYER_PATHS[actualPlayer - 1][position];
+function getPlace(position, player = actualPlayer - 1) {
+  return PLAYER_PATHS[player][position];
 }
 
 function isDiceEmpty(turns) {
@@ -398,6 +444,72 @@ function incrementActualPlayer(min) {
   selectActualUser(actualPlayer, min);
 }
 
+//Adicionar peças em jogos no  array
+function incrementPieceQuantity() {
+  players_info[actualPlayer].livePieceLength += 1;
+}
+
+function decrementPieceQuantity(player) {
+  players_info[player].livePieceLength -= 1;
+}
+
+function isObjectEmpty(obj) {
+  return Object.keys(obj).length == 0 ? true : false;
+}
+function killPiece(position) {
+  var pieceToKill = {};
+  for (var i = 0; i < 4; i++) {
+    if (i != actualPlayer - 1) {
+      for (var j = 0; j < 4; j++) {
+        if (getPlace(position) == getPlace(players[i][j], i)) {
+          pieceToKill = {
+            i,
+            j,
+          };
+        }
+      }
+    }
+  }
+  if (!isObjectEmpty(pieceToKill)) {
+    const player = pieceToKill.i + 1;
+    changePieceToKillPlace(pieceToKill);
+    decrementPieceQuantity(player);
+    if (players_info[player].livePieceLength == 0) {
+      players_info[player].existPieceLive = false;
+    }
+  }
+}
+
+function imprimir() {
+  for (var i = 0; i < 4; i++) {
+    console.log(BASE[i][0], " ", BASE[i][1], " ", BASE[i][2], " ", BASE[i][3]);
+  }
+}
+
+function changePieceToKillPlace(pieceToKill) {
+  const { i, j } = pieceToKill;
+  var pieceToKillId = `p${i + 1}-${j + 1}`;
+  var lockImageId = `${pieceToKillId}-img`;
+  var basePieceToKillPosition = BASE[i][j];
+  var placeId = `id-${basePieceToKillPosition}`;
+  var animation = `locked-piece${i + 1} 4s infinite`;
+  players[i][j] = basePieceToKillPosition * 2;
+  var placeElement = document.getElementById(placeId);
+  var pieceElement = document.getElementById(pieceToKillId);
+  var imageElemeny = document.getElementById(lockImageId);
+  imageElemeny.style.display = "block";
+  pieceElement.style.animation = animation;
+  placeElement.append(pieceElement);
+}
+
+function removeLockedAnimation(pieceId) {
+  var lockImageId = `${pieceId}-img`;
+  var pieceElement = document.getElementById(pieceId);
+  var imageElemeny = document.getElementById(lockImageId);
+  imageElemeny.style.display = "none";
+  pieceElement.style.animation = "none";
+}
+
 function changePiecePlace(pieceId, place) {
   var placeId = `id-${place}`;
   var placeElement = document.getElementById(placeId);
@@ -412,15 +524,25 @@ async function onchoosePiece(id, piece, player) {
   if (position >= 600) {
     var turn = getDice();
     if (turn == 6) {
-      players[actualPlayer - 1][piece - 1] = 0;
-      var place = getPlace(0);
-      changePiecePlace(id, place);
+      if (position < 1000) {
+        players[actualPlayer - 1][piece - 1] = 0;
+        var place = getPlace(0);
+        changePiecePlace(id, place);
+        incrementPieceQuantity();
+      } else {
+        players[actualPlayer - 1][piece - 1] /= 2;
+        removeLockedAnimation(id);
+        if (players_info[actualPlayer].livePieceLength == 0) {
+          players_info[actualPlayer].existPieceLive = false;
+        }
+      }
     } else {
       turns = [turn, ...turns];
     }
   } else {
     var turn = getDice();
     await movePiece(id, piece, turn);
+    killPiece(players[actualPlayer - 1][piece - 1]);
   }
 
   if (isDiceEmpty(turns)) {

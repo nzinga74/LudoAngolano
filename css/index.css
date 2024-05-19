@@ -11,7 +11,7 @@
 } */
 
 body {
-    background-color: #1a0098;
+    background-color: #24222b;
 }
 
  .board-container {
@@ -158,7 +158,7 @@ body {
     background-color: #eae8e9;
     cursor: pointer;
     font-size: 10px;
-    color: #eae8e9;
+    /* color: #eae8e9; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -178,7 +178,7 @@ body {
     cursor: pointer;
     min-height: 100%;height:0;
     font-size: 10px;
-    color: #eae8e9;
+    /* color: #eae8e9; */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -273,21 +273,21 @@ body {
 
 .blue{
     background-color: #483be2 !important;
-    color: #483be2 !important;
+    /* color: #483be2 !important; */
 }
 
 .yellow {
     background-color: #f0a800 !important;
-    color: #f0a800 !important;
+    /* color: #f0a800 !important; */
 }
 .red {
     background-color: #dd067d !important;
-    color: #dd067d !important;
+    /* color: #dd067d !important; */
 }
 
 .green {
     background-color: #5dad56 !important;
-    color: #5dad56 !important;
+    /* color: #5dad56 !important; */
 }
 
 /*DASHBOARD*/
@@ -404,10 +404,18 @@ body {
     box-sizing: border-box;
     border-style: dashed;
     position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     
 }
 .piece-3 {
     background-image: url("../assets/frog.png");
+  
+}
+.piece-3-locked {
+    transition: all 0.2s ease-out;
+    
 }
 .piece-2 {
     background-image: url("../assets/tiger.png");
@@ -559,6 +567,13 @@ body {
    
 }
 
+.lock {
+    width: 22px;
+    height: 22px;
+    display: none;
+}
+
+
 .priority-dice-selected {
     border: 2px dashed #483be2;
 }
@@ -571,5 +586,51 @@ body {
     }
     to {
         transform: rotate(-360deg);
+    }
+}
+
+@keyframes locked-piece4 {
+    0% {
+       background-color: #dd067d;
+    }
+    50% {
+        background-color: #eae8e9;
+    }
+    100% {
+        background-color: #dd067d;
+    }
+}
+@keyframes locked-piece3 {
+    0% {
+       background-color: #5dad56;
+    }
+    50% {
+        background-color: #eae8e9;
+    }
+    100% {
+        background-color: #5dad56;
+    }
+}
+
+@keyframes locked-piece2 {
+    0% {
+       background-color: #f0a800;
+    }
+    50% {
+        background-color: #eae8e9;
+    }
+    100% {
+        background-color: #f0a800;
+    }
+}
+@keyframes locked-piece1 {
+    0% {
+       background-color: #483be2;
+    }
+    50% {
+        background-color: #eae8e9;
+    }
+    100% {
+        background-color: #483be2;
     }
 }
