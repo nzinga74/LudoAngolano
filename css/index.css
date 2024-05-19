@@ -142,14 +142,19 @@ body {
 }
 .squareplay-over > div:nth-of-type(5){
     background-color: white;
-    width: 60%;
-    height: 60%;
+    width: 80%;
+    height: 80%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     border-radius: 500px;
+    display: grid;
+    grid-template-columns: auto auto;
+    padding: 10px;
 }
+
+
 
 .squareplay-1 > div, .squareplay-3  > div{
     width:100%;
@@ -571,6 +576,9 @@ body {
     width: 22px;
     height: 22px;
     display: none;
+}
+.squareplay-circle{
+
 }
 
 

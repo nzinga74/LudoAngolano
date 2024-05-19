@@ -395,26 +395,32 @@ var players = [
   [900, 901, 902, 903],
 ];
 
+var winners = [];
+
 var players_info = {
   1: {
     livePieceLength: 0,
     existPieceLive: false,
     livePieces: new Array(),
+    pieceArrivedLength: 0,
   },
   2: {
     livePieceLength: 0,
     existPieceLive: false,
     livePieces: new Array(),
+    pieceArrivedLength: 0,
   },
   3: {
     livePieceLength: 0,
     existPieceLive: false,
     livePieces: new Array(),
+    pieceArrivedLength: 0,
   },
   4: {
     livePieceLength: 0,
     existPieceLive: false,
     livePieces: new Array(),
+    pieceArrivedLength: 0,
   },
 };
 
@@ -438,6 +444,9 @@ function isDiceEmpty(turns) {
 function incrementActualPlayer(min) {
   removeSelectedUser(actualPlayer, min);
   actualPlayer += 1;
+  // if (winners.includes(actualPlayer)) {
+  //   actualPlayer += 1;
+  // }
   if (actualPlayer > 4) {
     actualPlayer = 1;
   }
@@ -455,6 +464,20 @@ function decrementPieceQuantity(player) {
 
 function isObjectEmpty(obj) {
   return Object.keys(obj).length == 0 ? true : false;
+}
+function pieceArrived(pieceId, piece) {
+  if (players[actualPlayer - 1][piece - 1] == 88) {
+    players_info[actualPlayer].livePieceLength -= 1;
+    players_info[actualPlayer].pieceArrivedLength += 1;
+    if (players_info[actualPlayer].pieceArrivedLength == 4) {
+      winners.push(piece);
+    }
+    if (players_info[actualPlayer].livePieceLength == 0) {
+      players_info[actualPlayer].existPieceLive = false;
+    }
+    //Mover o elemento para o meio
+    changePieceToFinalPlace(pieceId, piece);
+  }
 }
 function killPiece(position) {
   var pieceToKill = {};
@@ -485,7 +508,12 @@ function imprimir() {
     console.log(BASE[i][0], " ", BASE[i][1], " ", BASE[i][2], " ", BASE[i][3]);
   }
 }
-
+function changePieceToFinalPlace(pieceId, piece) {
+  var middlePlaceId = `final-piece-${piece}`;
+  var placeElement = document.getElementById(middlePlaceId);
+  var pieceElement = document.getElementById(pieceId);
+  placeElement.append(pieceElement);
+}
 function changePieceToKillPlace(pieceToKill) {
   const { i, j } = pieceToKill;
   var pieceToKillId = `p${i + 1}-${j + 1}`;
@@ -534,6 +562,7 @@ async function onchoosePiece(id, piece, player) {
         removeLockedAnimation(id);
         if (players_info[actualPlayer].livePieceLength == 0) {
           players_info[actualPlayer].existPieceLive = false;
+          turns = [];
         }
       }
     } else {
@@ -541,11 +570,27 @@ async function onchoosePiece(id, piece, player) {
     }
   } else {
     var turn = getDice();
-    await movePiece(id, piece, turn);
-    killPiece(players[actualPlayer - 1][piece - 1]);
-  }
+    //Verificar se uma peça chegou  no final do jogo
+    if (position >= 80 && position < 88) {
+      if (position + turn > 88) {
+        //Primeiro caso se o jogador so tem uma peça no campo e essa mesma peça está na casa
+        if (players_info[actualPlayer].livePieceLength == 1) {
+          turn = getDice();
+          if (position + turn > 88) {
+            turn = 0;
+          }
+        }
+      }
+    }
 
-  if (isDiceEmpty(turns)) {
+    if (turn != 0) {
+      await movePiece(id, piece, turn);
+      killPiece(players[actualPlayer - 1][piece - 1]);
+      //pieceArrived(id, piece);
+    }
+  }
+  var isLive = players_info[actualPlayer].existPieceLive;
+  if (isDiceEmpty(turns) || isLive == false) {
     if (!playAgain) {
       incrementActualPlayer(1000);
     }
